@@ -1,7 +1,7 @@
 # DeploySmartContractRuntime
 
 Paso 1: Compila el contrato en Remix
-Paso 2: Copia el ABI en la linea 26
+<br>Paso 2: Copia el ABI en la linea 26
 Paso 3: Copia el ABI en la linea 31 entre comillas simples
 Paso 4: Copia el Bytecode en la linea 33 
 Paso 5: Levanta Ganache 
