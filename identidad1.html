@@ -1,0 +1,127 @@
+<html>
+    <head>
+        <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js/dist/web3.min.js"></script>
+		<script src="http://code.dappbench.com/browser-solc.min.js" type="text/javascript"></script>
+		<script>
+			//Se establece la conexión con el nodo
+			var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+			//Se selecciona la primera de las cuentas (la de por defecto y Ăºnica)
+			//web3.eth.defaultAccount = web3.eth.accounts[0];
+			//console.log("accounts", web3.eth.defaultAccount)
+			
+			
+			
+			/////////////Desplegando Contrato///////////////////////
+			/*   Ejemplo del contrato
+			pragma solidity ^0.4.18;
+
+			contract HelloWorld {
+			  function displayMessage() constant returns (string) {
+				return "Whale hello there!";
+			  }
+			}
+			*/
+			
+			var direccionContrato
+			var ABI = [{"constant": true,"inputs": [],"name": "displayMessage","outputs": [{"name": "","type": "string"}],"payable": false,"stateMutability": "view","type": "function"}]
+			
+			function deployContractEvent() {
+			 
+			  //Este es el ABI
+			  var interface = '[{"constant": true,"inputs": [],"name": "displayMessage","outputs": [{"name": "","type": "string"}],"payable": false,"stateMutability": "view","type": "function"}]'
+			  
+			  var bytecode ="608060405234801561001057600080fd5b5061013f806100206000396000f300608060405260043610610041576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680632d59dc1214610046575b600080fd5b34801561005257600080fd5b5061005b6100d6565b6040518080602001828103825283818151815260200191508051906020019080838360005b8381101561009b578082015181840152602081019050610080565b50505050905090810190601f1680156100c85780820380516001836020036101000a031916815260200191505b509250505060405180910390f35b60606040805190810160405280601281526020017f5768616c652068656c6c6f2074686572652100000000000000000000000000008152509050905600a165627a7a72305820bf64749f89f1b1142f73b176490e690b2ae2381b61bb9f932adf6cdb65a0b2db0029"
+
+			 		  
+			  const newContract = web3.eth.contract(JSON.parse(interface))
+			  const options = { from: web3.eth.accounts[0], data: bytecode, gas: 1000000 }
+
+			  newContract.new(options, newContractCallback(name))
+			}
+			
+			function currentNetwork() {
+			  const network = web3.eth.getBlock(0).hash
+			  const main = '0xd4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3'
+			  const test = '0x41941023680923e0fe4d74a34bdac8141f2540e3ae90623718e47d66d1ca4a2d'
+
+			  switch (network) {
+				case main:
+				  return 'Main Net'
+				case test:
+				  return 'Ropsten Network'
+				default:
+				  return 'TestRPC Testnet'
+			  }
+			}
+			
+			
+			
+			function newContractCallback(name) {
+			  return (err, contract) => {
+				if (!err) {
+				  !contract.address
+					? console.log('Desplegando contrato')
+					: renderContract(contract, name)
+				}
+			  }
+			}			
+			
+			function renderContract(contract, contractName) {
+			  console.log('Contrato Desplegado...')
+			  const { transactionHash, address } = contract
+
+			  web3.eth.getTransaction(transactionHash, (err, transaction) => {
+				if (!err) {
+				  const props = { ...transaction, ...contract, }
+				  const details = {
+					blockNumber: transaction.blockNumber, 
+					contractName, 
+					address,
+				  }
+				  console.log("Detalles Contrato \n", details)
+				  //createContractPanel(details, panel => createContract(props, panel))
+				}  
+			  })
+			  
+			  direccionContrato=address
+			}
+			
+			////////////////////////////////////////////////////////
+			
+			/////////////////Prueba contrato Desplegado//////////////
+		
+			
+			function getMessage(){
+			
+				web3.eth.defaultAccount = web3.eth.accounts[0];
+				console.log("Cuenta....", web3.eth.defaultAccount)
+				console.log("ABI....:", ABI)
+				web3.personal.unlockAccount(web3.eth.defaultAccount, "");
+				
+				var contratoPrueba = web3.eth.contract(ABI).at(direccionContrato);    
+			
+				var mensaje=contratoPrueba.displayMessage.call({from: web3.eth.accounts[0], gas: 30000});
+				
+				document.getElementById('idtext').value = document.getElementById('idtext').value + mensaje;
+				
+				console.log("mensaje...._",mensaje);
+			}
+			
+			/////////////////////////////////////////////////////////
+		</script>
+	</head>
+	<body>
+		Ejemplo de deploy de un contrato
+		<br> Paso 1: Compila el contrato en Remix
+		<br> Paso 2: Copia el ABI en la linea 26
+		<br> Paso 3: Copia el ABI en la linea 31 entre comillas simples
+		<br> Paso 4: Copia el Bytecode en la linea 33 
+		<br> Paso 5: Levanta Ganache 
+		<br> Paso 6: Levanta el miniweb u otro servidor web
+		<br> Paso 7: Clic en el Boton "Deploy" 
+		<br> Paso 8: Clic en el Boton "Prueba Deploy" para que muestre el mensaje de la funcion  displayMessage del contrato
+		<br><input type="Button" value="Deploy" onclick="deployContractEvent()">
+		<br><input type="Button" value="Prueba Deploy" onclick="getMessage()">
+		<br><input type="Text" id="idtext">
+	</body>
+</html>
